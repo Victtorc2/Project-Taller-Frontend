@@ -1,32 +1,40 @@
-# React + TypeScript + Vite
+# Taller Automotriz Córdova
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Frontend interno para atención, agenda, órdenes de trabajo, repuestos, cobros, cierres y continuidad del taller. Usa React, TypeScript y Vite. Las acciones consultan el contrato OpenAPI y operan sobre la API FastAPI.
 
-Currently, two official plugins are available:
+## Ejecutar en Windows
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Desde `Project-Taller-Backend`, con PostgreSQL y el archivo `.env` configurados:
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```powershell
+.\.venv\Scripts\python.exe -m alembic upgrade head
+.\.venv\Scripts\python.exe -m scripts.bootstrap_manager --username gerente --name "Gerente del taller"
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Ejecuta el comando de creación del gerente una sola vez, cuando la base todavía no tenga usuarios. El comando pide la contraseña de forma interactiva.
+
+En otra terminal, desde `Project-Taller-Frontend\frontend`:
+
+```powershell
+npm.cmd ci
+npm.cmd run dev -- --host localhost --port 5173 --strictPort
+```
+
+Abre [el frontend](http://localhost:5173/) e ingresa con la cuenta del taller. La URL predeterminada de API es `http://localhost:8000`. Para cambiarla, copia `.env.example` a `.env.local` y edita `VITE_API_URL`. Si cambia el origen del frontend, inclúyelo también en `CORS_ORIGINS` del backend.
+
+## Recorrido
+
+1. Busca al cliente y abre su vehículo para registrar una solicitud.
+2. Deriva la solicitud a una cita o a recepción directa y abre la OT.
+3. Desde la OT, registra diagnóstico, presupuesto y respuesta del cliente. Una vez autorizado, asigna un responsable y documenta avances, repuestos y pruebas.
+4. Registra el aviso de reparación terminada, revisa el saldo y completa el cobro o el compromiso antes de registrar la entrega.
+5. Desde Cierres y reportes, revisa el periodo, las diferencias y los identificadores de movimientos. Solo el gerente confirma o reabre el cierre.
+
+Las comunicaciones de cita y OT registran lo que el personal comunicó al cliente. La sesión se conserva por pestaña hasta el cierre de sesión o la caducidad del token.
+
+## Compilación
+
+```powershell
+npm.cmd run build
+```
